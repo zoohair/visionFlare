@@ -1,27 +1,36 @@
 warning('off','images:imshow:magnificationMustBeFitForDockedFigure')
 
 %%
-img = imread('data/snap-00002.tiff');
-I= img;
+img = imread('test3k.gray.png');
+bak = imread('test.bkgnd.png');
 %I = rgb2gray(img);
-%figure(1); clf;
+figure(3); clf;
+imshow(img)%, bak,'montage')
 %I = imcrop(I);
+%%
+Ifore = img;
+av = mean(img(:));
+msk = ~zim2bw(bak);
+Ifore(~zim2bw(bak)) = av;
+figure(1); clf
+imshow(Ifore);
+I =  Ifore;
 %%
 se = strel('square',3);
 I2 = imdilate(I,se);
-I2 = rgb2ind(I2,gray);
 figure(1); clf
 imshowpair(I,I2,'montage')
 
 %%
 I3 = im2bw(I2, graythresh(I2));
-BW = edge(I3,'sobel');
+BW = edge(I2,'sobel');
+BW(msk) = 0;
 figure(2); clf;
 BW2 = bwareaopen(BW,50);
-imshowpair(I3,BW2,'montage')
+imshowpair(I2,BW2,'montage')
 
 %%
-[H,theta,rho] = hough(BW2,'RhoResolution',1,'Theta',-60  :.5:60);
+[H,theta,rho] = hough(BW2,'RhoResolution',1,'Theta',-80:.25:80);
 figure(2); clf
 % Display the Hough matrix.
 offset = 0;
@@ -35,8 +44,14 @@ colormap(gray);
 P = houghpeaks(H,5,'threshold',ceil(0.3*max(H(:))));
 x = theta(P(:,2));
 y = rho(P(:,1));
+[i1 , i2] = findBestTheta(x);
 for i = 1:length(x)
-    plot(x(i)+offset,y(i),'s','color','red', 'LineWidth',8-i);
+    if(i == i1 || i == i2)
+        col = 'red';
+    else
+        col = 'blue';
+    end
+    plot(x(i)+offset,y(i),'s','color',col, 'LineWidth',8-i);
 end
 
 %%
@@ -46,10 +61,15 @@ for i = 1:length(x)
     tt = x(i)*pi/180;
     ct = cos(tt); st = sin(tt);
     yy = -ct/st * xx + y(i)/st;
-    plot(xx,yy,'--','LineWidth',2,'Color','red');
+    if(i == i1 || i == i2)
+        col = 'red';
+    else
+        col = 'blue';
+    end
+    plot(xx,yy,'--','LineWidth',1,'Color',col);
 end
 %%
-lines = houghlines(BW2,theta,rho,P);%,'FillGap',5,'MinLength',7);
+lines = houghlines(BW2,theta,rho,P,'FillGap',50,'MinLength',50);
 figure(5); clf; imshow(I2), hold on
 max_len = 0;
 for k = 1:length(lines)

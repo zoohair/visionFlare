@@ -21,8 +21,6 @@ nFrames = 1000;
 k0 = 1000;
 bk_downsample = 100; %The downsample factor for frame averaging
 
-rescale = @(im) (im - min(im(:)))/(max(im(:)) - min(im(:)));
-gread = @(v, kth)  rescale(double(rgb2ind(read(v,kth),gray)));
 frame0 = gread(vob, k0) * 0;
 background_frame = frame0;
 disp('Calculating background...')
@@ -65,7 +63,6 @@ end
 background_frame3 = (background_frame2./pixel_sample_density);
 
 %%
-zim2bw = @(im) im2bw(im,graythresh(im));
 figure(1); clf
 hold on
 imshow(edge(this_frame-background_frame3,'sobel'))
