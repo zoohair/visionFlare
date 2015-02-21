@@ -1,37 +1,50 @@
 warning('off','images:imshow:magnificationMustBeFitForDockedFigure')
 
 %%
-img = imread('test3k.gray.png');
+img = imread('test.gray.png');
 bak = imread('test.bkgnd.png');
 %I = rgb2gray(img);
-figure(3); clf;
-imshow(img)%, bak,'montage')
+figuren('original'); clf;
+imshowpair(img, bak,'montage')
+center_xy = [size(img,2) , size(img,1)]/2;
 %I = imcrop(I);
 %%
 Ifore = img;
-av = mean(img(:));
 msk = ~zim2bw(bak);
-Ifore(~zim2bw(bak)) = av;
-figure(1); clf
+msk_tight = imdilate(msk, strel('square',25));
+figuren('test'); clf; 
+imshowpair(msk, msk_tight,'montage');
+%%
+av = mean(img(:));
+Ifore(msk) = av;
+figuren('background removed'); clf
 imshow(Ifore);
 I =  Ifore;
 %%
 se = strel('square',3);
-I2 = imdilate(I,se);
-figure(1); clf
+I2 = I ; %imdilate(I,se);
+figuren('dilated'); clf
 imshowpair(I,I2,'montage')
 
 %%
 I3 = im2bw(I2, graythresh(I2));
-BW = edge(I2,'sobel');
-BW(msk) = 0;
-figure(2); clf;
-BW2 = bwareaopen(BW,50);
-imshowpair(I2,BW2,'montage')
+IforEdge = I2;
 
+BW = edge(IforEdge,'sobel');
+BW(msk_tight) = 0;
+BWforConv = bwareaopen(BW,50);
+figuren('threshold and sobel'); clf;
+imshowpair(BW,BWforConv,'montage')
+
+%% Try convolution
+%h = [-1, 2, -1]; h = repmat(h, 3, 1);
+%BWforHough = BWforConv; %imfilter(BWforConv, h);
+%figuren('Convolution');
+%imshowpair(BWforConv, BWforHough, 'montage');
+BWforHough= BWforConv;
 %%
-[H,theta,rho] = hough(BW2,'RhoResolution',1,'Theta',-80:.25:80);
-figure(2); clf
+[H,theta,rho] = hough(BWforHough,'RhoResolution',1,'Theta',-30:1:30);
+figuren('Hough Transform'); clf
 % Display the Hough matrix.
 offset = 0;
 imshow(imadjust(mat2gray(H)),'XData',theta+offset,'YData',rho,...
@@ -41,36 +54,23 @@ xlabel('\theta'), ylabel('\rho');
 axis on, axis normal, hold on;
 colormap(gray);
 
-P = houghpeaks(H,5,'threshold',ceil(0.3*max(H(:))));
-x = theta(P(:,2));
-y = rho(P(:,1));
-[i1 , i2] = findBestTheta(x);
-for i = 1:length(x)
+P = houghpeaks(H,20,'threshold',ceil(0.3*max(H(:))));
+thetaList = theta(P(:,2))*pi/180;
+rhoList = rho(P(:,1));
+[i1 , i2, xsec] = findBestTheta(thetaList, rhoList, center_xy);
+for i = 1:length(thetaList)
     if(i == i1 || i == i2)
         col = 'red';
     else
         col = 'blue';
+        continue
     end
-    plot(x(i)+offset,y(i),'s','color',col, 'LineWidth',8-i);
+    plot(180/pi*thetaList(i)+offset,rhoList(i),'s','color',col, 'LineWidth',1);
 end
 
 %%
-figure(4); clf; imshow(BW2), hold on;
-xx = 1:size(I2,2);
-for i = 1:length(x)
-    tt = x(i)*pi/180;
-    ct = cos(tt); st = sin(tt);
-    yy = -ct/st * xx + y(i)/st;
-    if(i == i1 || i == i2)
-        col = 'red';
-    else
-        col = 'blue';
-    end
-    plot(xx,yy,'--','LineWidth',1,'Color',col);
-end
-%%
-lines = houghlines(BW2,theta,rho,P,'FillGap',50,'MinLength',50);
-figure(5); clf; imshow(I2), hold on
+lines = houghlines(BWforHough,theta,rho,P,'FillGap',50,'MinLength',50);
+figuren('Hough Lines'); clf; imshow(I2), hold on
 max_len = 0;
 for k = 1:length(lines)
    xy = [lines(k).point1; lines(k).point2];
@@ -87,3 +87,20 @@ for k = 1:length(lines)
       xy_long = xy;
    end
 end
+
+%%
+figuren('Best Lines'); clf; imshow(img), hold on;
+xx = 1:size(I2,2);
+for i = 1:length(thetaList)
+    tt = thetaList(i);
+    ct = cos(tt); st = sin(tt);
+    yy = -ct/st * xx + rhoList(i)/st;
+    if(i == i1 || i == i2)
+        col = 'red';
+    else
+        col = 'blue';
+        %continue;
+    end
+    plot(xx,yy,'--','LineWidth',1,'Color',col);
+end
+plot(xsec(1), xsec(2),'x', 'Color','Green', 'MarkerSize',20);
