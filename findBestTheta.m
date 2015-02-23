@@ -25,7 +25,7 @@ for i = 1:kn
         pr = posRho(j);
         pl = projLine(pt, pr);
         xsec = intersection(nl, pl);
-        scoreMatrix(i,j) = abs(nt + pt)*180 + 1*distance2center(xsec, center_xy);
+        scoreMatrix(i,j) = max(abs(nt + pt)) + 1*distance2center(xsec, center_xy);
     end
     [bestDiff(i), bestPair(i)] = min(scoreMatrix(i,:));
 end
@@ -62,6 +62,8 @@ function d = distance2center(xy, center_xy)
         d = Inf;
     else
         d = abs(xy(1) - center_xy(1));
-        d = max(d, 0);
+        if d < 50
+            d = 0;
+        end
     end
 end
