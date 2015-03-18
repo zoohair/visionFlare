@@ -1,6 +1,6 @@
 warning('off','images:imshow:magnificationMustBeFitForDockedFigure')
 %%
-bak = imread('test.bkgnd.png');
+bak = imread('./data/test.bkgnd.png');
 msk = ~zim2bw(bak);
 msk_tight = imdilate(msk, strel('square',25));
 
