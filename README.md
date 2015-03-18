@@ -1,9 +1,10 @@
-This is source code in Matlab which implements a pipeline for runway edge detection, and uses it to predict above ground altitude.
+This is source code in Matlab which implements a pipeline for runway edge detection, and uses it to predict above ground altitude. Refer to the project [report](report/report.pdf) for the methodology.
+
  
-The entry file is [processVideo.m](processVideo.m). It works on the file data/test1.avi and uses data/test.bkgnd.png as a mask.
-Refer to the project [report](report/report.pdf) for the methodology.
+The entry file is [processVideo.m](processVideo.m). It processes the video file [data/test1.avi](data/test1.avi) and uses [data/test.bkgnd.png](data/test.bkgnd.png) as a mask.
 
 
+--
 This work was done as part of coursework for the [CS231A vision course](http://cs231a.stanford.edu) 
 
 
