@@ -1,9 +1,5 @@
-%Time-average the movement regions in a video as the first stage of a
-%trajectory-learning algorithm
-%Alexander Farley
-%alexander.farley at utoronto.ca
-%September 16 2011 
-%Written and tested in Matlab R2011a
+%This is a modified version of code posted by alexander.farley at utoronto.ca
+%Zouhair Mahboubi
 %------------------------------------------------------------------------------
 %The purpose of this script is to average a video across all frames as a
 %first stage of a trajectory-learning algorithm
