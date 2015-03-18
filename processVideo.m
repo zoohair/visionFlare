@@ -22,8 +22,8 @@ tau = 0.05 * 3 / writerObj.FrameRate;
 xx = 0:100:vob.Width;
 
 makeVid = false;
-nFrames = 100*30;
-k0 = 50*30;
+nFrames = 4; 100*30;
+k0 = 50*30 + 15;
 bk_downsample = 30 / writerObj.FrameRate; 
 
 t = 0;
@@ -55,7 +55,8 @@ for k = k0:bk_downsample:(nFrames+k0)
     imshow(img); hold on;
     try
         [thetaList_rad, rhoList, xsecHatNew, allTheta_rad, allRho] = ...
-            findLines(img, thetaHat, msk, msk_tight, xsecHat);
+            findLines(img, thetaHat, msk, msk_tight, xsecHat, true);
+        figuren('test');
         newTheta = mean(abs(thetaList_rad))*180/pi;
         oldSearch = thetaHat;
         slopeFilt = t2slope(thetaHat) + tau*(t2slope(newTheta) - t2slope(thetaHat));

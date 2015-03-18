@@ -1,4 +1,5 @@
-function [thetas_rad, rhos, xsec, thetaList_rad, rhoList] = findLines(img, thetaHat_deg, msk, msk_tight, xsecHat)
+function [thetas_rad, rhos, xsec, thetaList_rad, rhoList] = ...
+    findLines(img, thetaHat_deg, msk, msk_tight, xsecHat, pl)
 
 %we'll search +/- 20 deg around the thetaHat
 theta_width = 30;
@@ -13,10 +14,23 @@ I(msk) = av;
 se = strel('square',3);
 I = imdilate(I,se);
 
-I = edge(I,'sobel');
+if(pl)
+    figuren('raw'); clf
+    imshowpair(img, I ,'montage');
+end
+
+I = edge(I,'sobel'); 
 I(msk_tight) = 0;
+Ie = [];
+if pl
+   Ie = I; 
+end
 I = bwareaopen(I,20);
 
+if(pl)
+    figuren('sobel'); clf
+    imshowpair(Ie, I, 'montage');
+end
 
 
 [H,Htheta_deg,Hrho] = hough(I,'RhoResolution',1,'Theta',thetaRange_deg);
@@ -28,7 +42,22 @@ rhoList = Hrho(P(:,1));
 
 thetas_rad = thetaList_rad([i1, i2]);
 rhos = rhoList([i1, i2]);
-
-
+if pl
+    figuren('Hough'); clf; hold on;
+    imshow(imadjust(mat2gray(H)),'XData',Htheta_deg,'YData',Hrho,...
+      'InitialMagnification','fit');
+    title('Hough Transform');
+    xlabel('\theta'), ylabel('\rho');
+    axis on, axis normal, hold on;
+    colormap(gray);
+    for i = 1:length(thetaList_rad)
+        if(i == i1 || i == i2)
+            col = 'red';
+        else
+            col = 'blue';
+        end
+        plot(180/pi*thetaList_rad(i),rhoList(i),'s','color',col, 'LineWidth',1);
+    end
+end
 
 end

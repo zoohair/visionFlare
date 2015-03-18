@@ -43,13 +43,13 @@ imshowpair(BW,BWforConv,'montage')
 %imshowpair(BWforConv, BWforHough, 'montage');
 BWforHough= BWforConv;
 %%
-[H,theta,rho] = hough(BWforHough,'RhoResolution',1,'Theta',-30:1:30);
+[H,theta,rho] = hough(I,'RhoResolution',1,'Theta',-50:1:50);
 figuren('Hough Transform'); clf
 % Display the Hough matrix.
 offset = 0;
 imshow(imadjust(mat2gray(H)),'XData',theta+offset,'YData',rho,...
       'InitialMagnification','fit');
-title('Hough Transform of Gantrycrane Image');
+title('Hough Transform');
 xlabel('\theta'), ylabel('\rho');
 axis on, axis normal, hold on;
 colormap(gray);
@@ -57,7 +57,7 @@ colormap(gray);
 P = houghpeaks(H,20,'threshold',ceil(0.3*max(H(:))));
 thetaList = theta(P(:,2))*pi/180;
 rhoList = rho(P(:,1));
-[i1 , i2, xsec] = findBestTheta(thetaList, rhoList, center_xy);
+[i1 , i2, xsec] = findBestTheta(thetaList, rhoList, xsecHat);
 for i = 1:length(thetaList)
     if(i == i1 || i == i2)
         col = 'red';
