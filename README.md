@@ -3,6 +3,7 @@ This is source code in Matlab which implements a pipeline for runway edge detect
  
 The entry file is [processVideo.m](processVideo.m). It processes the video file [data/test1.avi](data/test1.avi) and uses [data/test.bkgnd.png](data/test.bkgnd.png) as a mask.
 
+Sample processed results are available on [youtube](https://www.youtube.com/watch?v=QWjFQfFFzrY).
 
 --
 This work was done as part of coursework for the [CS231A vision course](http://cs231a.stanford.edu) 
